@@ -1,0 +1,46 @@
+package com.jobtracker.careerflow.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
+import org.springframework.jdbc.core.metadata.HsqlTableMetaDataProvider;
+
+import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.UUID;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID user_id;
+
+    @Column(nullable = false, name = "first_name")
+    private String firstName;
+
+    @Column(nullable = false, name = "last_name")
+    private String lastName;
+
+    @Column(nullable = false, unique = true, name = "phone_no")
+    private long phoneNo;
+
+    @Column(nullable = false, name = "address")
+    private String address;
+
+    @Email(message = "Invalid email address")
+    @Column(unique = true, nullable = false, name = "email")
+    private String email;
+
+    @Column(name = "created_at")
+    private OffsetDateTime createdAt;
+}
