@@ -3,6 +3,7 @@ package com.jobtracker.careerflow.service;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
 import com.jobtracker.careerflow.entity.UserEntity;
 import com.jobtracker.careerflow.repository.UserRepository;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,5 +33,18 @@ public class UserService {
         );
     }
 
-    public UserResponseDTO getUsersByEmail(String email){ return userRepository.getUserByEmail(email); }
+    public UserResponseDTO getUsersByEmail(String email){
+        UserEntity userEntity = userRepository.getUserByEmail(email).orElseThrow(() -> new RuntimeException("Provided email is not registered."));
+        return new UserResponseDTO()
+    }
+
+    public UserResponseDTO getUserByPhoneNo(long phoneNo){
+        UserEntity userEntity = userRepository.getUserByPhoneNo(phoneNo).orElseThrow(() -> new RuntimeException("Provided phone number is not registered!"));
+        return new UserResponseDTO(
+                userEntity.getUserId(),
+                userEntity.getFirstName(),
+                userEntity.getLastName(),
+                userEntity.getEmail()
+        );
+    }
 }
