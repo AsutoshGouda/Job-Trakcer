@@ -24,6 +24,7 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
+    @OneToMany()
     private UUID userId;
 
     @Column(nullable = false, name = "first_name")
@@ -42,6 +43,11 @@ public class UserEntity {
     @Column(unique = true, nullable = false, name = "email")
     private String email;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate(){
+        this.createdAt = OffsetDateTime.now();
+    }
 }

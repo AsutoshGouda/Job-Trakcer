@@ -1,7 +1,5 @@
 package com.jobtracker.careerflow.service;
 
-import com.jobtracker.careerflow.UserFetchingTest;
-import com.jobtracker.careerflow.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +14,6 @@ public class UserServiceTest implements CommandLineRunner {
 
     @Override
     public void run(String... args){
-        System.out.println("Total users = "+ userService.getAllUsers().size());
+        //System.out.println("Total users = "+ userService.getAllUsers().size());
     }
 }

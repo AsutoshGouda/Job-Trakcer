@@ -8,11 +8,12 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     List<UserEntity> findByFirstNameAndLastName(String firstname, String lastname);
-    UserResponseDTO getUserByUserId(UUID userID);
-    UserResponseDTO getUserByPhoneNo(long phone_no);
-    UserResponseDTO getUserByEmail(String email);
+    Optional<UserEntity> getUserByUserId(UUID userID);
+    Optional<UserEntity> getUserByPhoneNo(long phone_no);
+    Optional<UserEntity> getUserByEmail(String email);
 }

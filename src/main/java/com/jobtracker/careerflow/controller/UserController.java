@@ -5,6 +5,7 @@ import com.jobtracker.careerflow.repository.UserRepository;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
 import com.jobtracker.careerflow.resquestDTO.UserRequestDTO;
 import com.jobtracker.careerflow.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,13 +26,43 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public UserResponseDTO getUserByUserId(@PathVariable UUID id){
         return userService.getUserById(id);
     }
 
-    @PostMapping("/createUser/")
-    public UserRequestDTO postUser(@RequestBody UserRequestDTO userRequestDTO){
+    @GetMapping("/email/{email}")
+    public UserResponseDTO getUserbyEmail(@PathVariable String email){
+        return userService.getUsersByEmail(email);
+    }
+
+    @GetMapping("/phoneno/{phoneno}")
+    public UserResponseDTO getUserbyPhoneno(@PathVariable long phoneno){
+        return userService.getUserByPhoneNo(phoneno);
+    }
+
+    @PostMapping("/createUser")
+    public UserResponseDTO postUser(@Valid @RequestBody CreateUserRequestDTO userRequestDTO){
         return userService.save(userRequestDTO);
+    }
+
+    @PatchMapping("/updateUser/email/{email}")
+    public UserResponseDTO updateUser_email(@PathVariable String email, @Valid @RequestBody UserRequestDTO userRequestDTO){
+        return userService.updateUser_email(email, userRequestDTO);
+    }
+
+    @PatchMapping("/updateUser/phoneno/{phoneno}")
+    public UserResponseDTO updateUser_phoneno(@PathVariable long phoneno, @Valid @RequestBody UserRequestDTO userRequestDTO){
+        return userService.updateUser_phoneno(phoneno, userRequestDTO);
+    }
+
+    @DeleteMapping("/deleteUser/phoneno/{phoneno}")
+    public UserResponseDTO deleteUser_phone(@PathVariable long phoneno){
+        return userService.deleteUser_phone(phoneno);
+    }
+
+    @DeleteMapping("/deleteUser/email/{email}")
+    public UserResponseDTO deleteUser_email(@PathVariable String email){
+        return userService.deleteUser_email(email);
     }
 }
