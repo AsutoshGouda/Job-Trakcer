@@ -1,10 +1,20 @@
 package com.jobtracker.careerflow.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "resume")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResumeEntity {
 
     @Id
@@ -13,7 +23,7 @@ public class ResumeEntity {
     private UUID resumeId;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id", nullable = false)
     private UUID userId;
 
     @Column(name = "url")
@@ -24,4 +34,9 @@ public class ResumeEntity {
 
     @Column(name = "uploaded_at")
     private OffsetDateTime uploadedAt;
+
+    @PrePersist
+    public void onUpload(){
+        this.uploadedAt = OffsetDateTime.now();
+    }
 }

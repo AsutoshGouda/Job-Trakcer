@@ -10,7 +10,9 @@ import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
 import org.springframework.jdbc.core.metadata.HsqlTableMetaDataProvider;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -24,7 +26,6 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
-    @OneToMany()
     private UUID userId;
 
     @Column(nullable = false, name = "first_name")
@@ -50,4 +51,7 @@ public class UserEntity {
     protected void onCreate(){
         this.createdAt = OffsetDateTime.now();
     }
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<ResumeEntity> resumeEntityList = new ArrayList<>();
 }
