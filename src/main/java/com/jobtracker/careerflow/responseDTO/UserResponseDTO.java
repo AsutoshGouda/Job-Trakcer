@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserResponseDTO {
+public class  UserResponseDTO {
     String firstName;
     String lastName;
     long phoneNo;

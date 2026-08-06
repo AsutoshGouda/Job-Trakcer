@@ -24,13 +24,13 @@ public class ResumeEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private UUID userId;
+    private UserEntity user;
 
     @Column(name = "url")
     private String path;
 
     @Column(name = "version")
-    private long version;
+    private int version = 1;
 
     @Column(name = "uploaded_at")
     private OffsetDateTime uploadedAt;

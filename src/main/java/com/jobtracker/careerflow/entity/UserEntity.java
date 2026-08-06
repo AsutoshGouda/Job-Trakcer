@@ -52,6 +52,6 @@ public class UserEntity {
         this.createdAt = OffsetDateTime.now();
     }
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ResumeEntity> resumeEntityList = new ArrayList<>();
 }

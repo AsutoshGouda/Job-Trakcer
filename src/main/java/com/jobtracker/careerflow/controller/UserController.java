@@ -3,6 +3,7 @@ package com.jobtracker.careerflow.controller;
 import com.jobtracker.careerflow.entity.UserEntity;
 import com.jobtracker.careerflow.repository.UserRepository;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
+import com.jobtracker.careerflow.resquestDTO.CreateUserRequestDTO;
 import com.jobtracker.careerflow.resquestDTO.UserRequestDTO;
 import com.jobtracker.careerflow.service.UserService;
 import jakarta.validation.Valid;

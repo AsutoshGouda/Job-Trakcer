@@ -1,5 +1,6 @@
 package com.jobtracker.careerflow.service;
 
+import com.jobtracker.careerflow.Exception_Handling.UserNotFoundException;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
 import com.jobtracker.careerflow.entity.UserEntity;
 import com.jobtracker.careerflow.repository.UserRepository;
@@ -16,11 +17,17 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository){
-        this.userRepository = userRepository;
+        this.userRepository = userRepository; 
     }
 
     public UserResponseDTO mapToResponse(UserEntity userEntity){
-        return mapToResponse(userEntity);
+        return new UserResponseDTO(
+                userEntity.getFirstName(),
+                userEntity.getLastName(),
+                userEntity.getPhoneNo(),
+                userEntity.getEmail(),
+                userEntity.getAddress()
+        );
     }
 
     public List<UserEntity> getAllUsers(){
@@ -107,4 +114,6 @@ public class UserService {
         userRepository.delete(userEntity);
         return mapToResponse(userEntity);
     }
+
+
 }
