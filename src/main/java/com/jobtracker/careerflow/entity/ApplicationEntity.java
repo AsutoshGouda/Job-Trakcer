@@ -6,37 +6,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "resumes")
+@Table(name = "applications")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResumeEntity {
+public class ApplicationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "resume_id")
-    private UUID resumeId;
+    @Column(name = "application_id")
+    private UUID applicationId;
+
+    @ManyToOne
+    @JoinColumn(name = "resume_id", nullable = false)
+    private ResumeEntity resumeEntity;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity userEntity;
 
-    @Column(name = "url")
-    private String url;
-
-    @Column(name = "version")
-    private long version;
-
-    @Column(name = "uploaded_at")
-    private OffsetDateTime uploadedAt;
-
-    @PrePersist
-    public void onUpload(){
-        this.uploadedAt = OffsetDateTime.now();
-    }
 }

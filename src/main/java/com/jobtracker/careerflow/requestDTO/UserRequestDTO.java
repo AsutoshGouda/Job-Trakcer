@@ -1,4 +1,4 @@
-package com.jobtracker.careerflow.resquestDTO;
+package com.jobtracker.careerflow.requestDTO;
 
 import java.lang.String;
 
@@ -6,6 +6,6 @@ public record UserRequestDTO(
     String firstName,
     String lastName,
     String email,
-    long phoneNo,
+    String phoneNo,
     String address
 ){}

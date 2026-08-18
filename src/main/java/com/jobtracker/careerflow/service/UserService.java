@@ -3,9 +3,11 @@ package com.jobtracker.careerflow.service;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
 import com.jobtracker.careerflow.entity.UserEntity;
 import com.jobtracker.careerflow.repository.UserRepository;
-import com.jobtracker.careerflow.resquestDTO.CreateUserRequestDTO;
-import com.jobtracker.careerflow.resquestDTO.UserRequestDTO;
+import com.jobtracker.careerflow.requestDTO.CreateUserRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UserRequestDTO;
 import org.springframework.stereotype.Service;
+
+import com.jobtracker.careerflow.Exception_Handling.UserNotFoundException;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +22,13 @@ public class UserService {
     }
 
     public UserResponseDTO mapToResponse(UserEntity userEntity){
-        return mapToResponse(userEntity);
+        return new UserResponseDTO(
+                userEntity.getFirstName(),
+                userEntity.getLastName(),
+                userEntity.getPhoneNo(),
+                userEntity.getEmail(),
+                userEntity.getAddress()
+        );
     }
 
     public List<UserEntity> getAllUsers(){
@@ -37,7 +45,7 @@ public class UserService {
         return mapToResponse(userEntity);
     }
 
-    public UserResponseDTO getUserByPhoneNo(long phoneNo){
+    public UserResponseDTO getUserByPhoneNo(String phoneNo){
         UserEntity userEntity = userRepository.getUserByPhoneNo(phoneNo).orElseThrow(() -> new UserNotFoundException("Provided phone number is not registered!"));
         return mapToResponse(userEntity);
     }
@@ -68,14 +76,14 @@ public class UserService {
         if(updates.address() != null){
             userEntity.setAddress(updates.address());
         }
-        if(updates.phoneNo() != 0){
+        if(updates.phoneNo() != null){
             userEntity.setPhoneNo(updates.phoneNo());
         }
         UserEntity updatedUser = userRepository.save(userEntity);
         return mapToResponse(updatedUser);
     }
 
-    public UserResponseDTO updateUser_phoneno(long phoneno, UserRequestDTO updates){
+    public UserResponseDTO updateUser_phoneno(String phoneno, UserRequestDTO updates){
         UserEntity userEntity = userRepository.getUserByPhoneNo(phoneno).orElseThrow(() -> new UserNotFoundException("Provided Phone No. is not found."));
         if(updates.firstName() != null){
             userEntity.setFirstName(updates.firstName());
@@ -89,14 +97,14 @@ public class UserService {
         if(updates.address() != null){
             userEntity.setAddress(updates.address());
         }
-        if(updates.phoneNo() != 0){
+        if(updates.phoneNo() != null){
             userEntity.setPhoneNo(updates.phoneNo());
         }
         UserEntity updatedUser = userRepository.save(userEntity);
         return mapToResponse(updatedUser);
     }
 
-    public UserResponseDTO deleteUser_phone(long phoneno){
+    public UserResponseDTO deleteUser_phone(String phoneno){
         UserEntity userEntity = userRepository.getUserByPhoneNo(phoneno).orElseThrow(() -> new UserNotFoundException("Phone No. is not registered"));
         userRepository.delete(userEntity);
         return mapToResponse(userEntity);

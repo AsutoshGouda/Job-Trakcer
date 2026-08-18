@@ -1,4 +1,4 @@
-package com.jobtracker.careerflow.resquestDTO;
+package com.jobtracker.careerflow.requestDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,9 +14,8 @@ public record CreateUserRequestDTO(
         String email,
 
         @NotBlank(message = "Phone No. cannot be empty.")
-        long phoneNo,
+        String phoneNo,
 
-        @NotBlank(message = "Address cannot be empty.")
         String address
 ) {
 }

@@ -6,12 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
-import org.springframework.jdbc.core.metadata.HsqlTableMetaDataProvider;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,9 +32,9 @@ public class UserEntity {
     private String lastName;
 
     @Column(nullable = false, unique = true, name = "phone_no")
-    private long phoneNo;
+    private String phoneNo;
 
-    @Column(nullable = false, name = "address")
+    @Column(name = "address")
     private String address;
 
     @Email(message = "Invalid email address")
@@ -52,6 +49,6 @@ public class UserEntity {
         this.createdAt = OffsetDateTime.now();
     }
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "userEntity")
     List<ResumeEntity> resumeEntityList = new ArrayList<>();
 }

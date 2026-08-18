@@ -1,9 +1,9 @@
 package com.jobtracker.careerflow.controller;
+import com.jobtracker.careerflow.requestDTO.CreateUserRequestDTO;
 
 import com.jobtracker.careerflow.entity.UserEntity;
-import com.jobtracker.careerflow.repository.UserRepository;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
-import com.jobtracker.careerflow.resquestDTO.UserRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UserRequestDTO;
 import com.jobtracker.careerflow.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping("/phoneno/{phoneno}")
-    public UserResponseDTO getUserbyPhoneno(@PathVariable long phoneno){
+    public UserResponseDTO getUserbyPhoneno(@PathVariable String phoneno){
         return userService.getUserByPhoneNo(phoneno);
     }
 
@@ -52,12 +52,12 @@ public class UserController {
     }
 
     @PatchMapping("/updateUser/phoneno/{phoneno}")
-    public UserResponseDTO updateUser_phoneno(@PathVariable long phoneno, @Valid @RequestBody UserRequestDTO userRequestDTO){
+    public UserResponseDTO updateUser_phoneno(@PathVariable String phoneno, @Valid @RequestBody UserRequestDTO userRequestDTO){
         return userService.updateUser_phoneno(phoneno, userRequestDTO);
     }
 
     @DeleteMapping("/deleteUser/phoneno/{phoneno}")
-    public UserResponseDTO deleteUser_phone(@PathVariable long phoneno){
+    public UserResponseDTO deleteUser_phone(@PathVariable String phoneno){
         return userService.deleteUser_phone(phoneno);
     }
 

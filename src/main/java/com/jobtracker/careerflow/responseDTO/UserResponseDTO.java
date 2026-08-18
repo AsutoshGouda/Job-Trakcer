@@ -8,7 +8,7 @@ import lombok.Getter;
 public class UserResponseDTO {
     String firstName;
     String lastName;
-    long phoneNo;
+    String phoneNo;
     String email;
     String address;
 }
