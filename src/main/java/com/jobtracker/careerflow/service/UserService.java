@@ -31,8 +31,8 @@ public class UserService {
         );
     }
 
-    public List<UserEntity> getAllUsers(){
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsers(){
+        return userRepository.findAll().stream().map(this::mapToResponse).toList();
     }
 
     public UserResponseDTO getUserById(UUID userID){
