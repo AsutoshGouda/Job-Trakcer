@@ -1,9 +1,11 @@
 package com.jobtracker.careerflow.service;
 
+import com.jobtracker.careerflow.Exception_Handling.ResumeAlreadyUsedException;
 import com.jobtracker.careerflow.Exception_Handling.ResumeNotFoundException;
 import com.jobtracker.careerflow.Exception_Handling.UserNotFoundException;
 import com.jobtracker.careerflow.entity.ResumeEntity;
 import com.jobtracker.careerflow.entity.UserEntity;
+import com.jobtracker.careerflow.repository.ApplicationRepository;
 import com.jobtracker.careerflow.repository.ResumeRepository;
 import com.jobtracker.careerflow.repository.UserRepository;
 import com.jobtracker.careerflow.requestDTO.ResumeRequestDTO;
@@ -19,10 +21,12 @@ public class ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public ResumeService(ResumeRepository resumeRepository, UserRepository userRepository){
+    public ResumeService(ResumeRepository resumeRepository, UserRepository userRepository, ApplicationRepository applicationRepository){
         this.resumeRepository = resumeRepository;
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     public ResumeResponseDTO mapToResponse(ResumeEntity resumeEntity){
@@ -63,4 +67,13 @@ public class ResumeService {
         return mapToResponse(resumeEntity);
 
     }
+
+    public void deleteResume(UUID id){
+        ResumeEntity resumeEntity = resumeRepository.findById(id).orElseThrow(()->new ResumeNotFoundException("Resume Not Found!"));
+        if(applicationRepository.existsByResumeEntity_ResumeId(resumeEntity.getResumeId())){
+            throw new ResumeAlreadyUsedException("Resume is being used by other applications!");
+        }
+        resumeRepository.delete(resumeEntity);
+    }
+
 }

@@ -39,4 +39,10 @@ public class ResumeController {
     public ResumeResponseDTO addResume(@Valid @RequestBody ResumeRequestDTO resumeRequestDTO){
         return resumeService.save(resumeRequestDTO);
     }
+
+    @DeleteMapping("/deleteResume/id/{id}")
+    public void deleteResume(@PathVariable UUID id){
+        resumeService.deleteResume(id);
+    }
+
 }
