@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -28,5 +29,28 @@ public class ApplicationEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity userEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
+    private JobEntity jobEntity;
+
+    @Column(name = "applied_at", nullable = false)
+    private OffsetDateTime appliedAt;
+
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
+
+    @Column(name = "status", nullable = false)
+    private String status;
+
+    @PrePersist
+    public void onCreate(){
+        this.createdAt = OffsetDateTime.now();
+        this.updatedAt = OffsetDateTime.now();
+        this.appliedAt = OffsetDateTime.now();
+    }
 
 }
