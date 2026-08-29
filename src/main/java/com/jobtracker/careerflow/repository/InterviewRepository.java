@@ -11,5 +11,6 @@ public interface InterviewRepository extends JpaRepository<InterviewEntity, UUID
 
     List<InterviewEntity> findByApplicationEntity_ApplicationId(UUID id);
     boolean existsByApplicationEntityAndRoundNoAndRoundType(ApplicationEntity applicationEntity, int roundNo, String roundType);
+    boolean existsByApplicationEntity(ApplicationEntity applicationEntity);
 
 }

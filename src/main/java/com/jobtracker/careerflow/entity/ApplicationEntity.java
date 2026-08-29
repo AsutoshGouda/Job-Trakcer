@@ -53,4 +53,9 @@ public class ApplicationEntity {
         this.appliedAt = OffsetDateTime.now();
     }
 
+    @PreUpdate
+    public void onUpdate(){
+        this.updatedAt = OffsetDateTime.now();
+    }
+
 }

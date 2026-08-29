@@ -1,11 +1,13 @@
 package com.jobtracker.careerflow.controller;
 
 import com.jobtracker.careerflow.requestDTO.ApplicationRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UpdateApplicationRequestDTO;
 import com.jobtracker.careerflow.responseDTO.ApplicationResponseDTO;
 import com.jobtracker.careerflow.service.ApplicationService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,5 +44,15 @@ public class ApplicationController {
     @PostMapping
     public ApplicationResponseDTO addApplication(@Valid @RequestBody ApplicationRequestDTO applicationRequestDTO){
         return applicationService.save(applicationRequestDTO);
+    }
+
+    @PatchMapping("/updateApplication/id/{id}")
+    public ApplicationResponseDTO updateApplication(@PathVariable UUID id, @RequestBody UpdateApplicationRequestDTO date){
+        return applicationService.updateApplied(id, date);
+    }
+
+    @DeleteMapping("/deleteApplication/id/{id}")
+    public void deleteApplication(@PathVariable UUID id){
+        applicationService.deleteApplication(id);
     }
 }

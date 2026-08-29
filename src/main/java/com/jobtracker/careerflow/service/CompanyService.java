@@ -51,4 +51,33 @@ public class CompanyService {
         return mapToResponse(companyEntity);
     }
 
+    public CompanyResponseDTO updateCompany(UUID id, CompanyRequestDTO companyRequestDTO){
+        CompanyEntity companyEntity = companyRepository.findById(id).orElseThrow(()-> new CompanyNotFoundException(
+                "Company Not Found!"));
+        if (!companyRequestDTO.companyName().isEmpty()) {
+            companyEntity.setCompanyName(companyRequestDTO.companyName());
+        }
+
+        if (!companyRequestDTO.website().isEmpty()) {
+            companyEntity.setWebsite(companyRequestDTO.website());
+        }
+
+        if (!companyRequestDTO.location().isEmpty()) {
+            companyEntity.setLocation(companyRequestDTO.location());
+        }
+
+        if (!companyRequestDTO.industry().isEmpty()) {
+            companyEntity.setIndustry(companyRequestDTO.industry());
+        }
+
+        companyRepository.save(companyEntity);
+        return mapToResponse(companyEntity);
+    }
+
+    public void deleteCompany(UUID companyId){
+        CompanyEntity companyEntity =
+                companyRepository.findById(companyId).orElseThrow(()-> new CompanyNotFoundException("Specified UUID doesn't belong to any company!!"));
+        companyRepository.delete(companyEntity);
+    }
+
 }

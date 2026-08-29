@@ -33,4 +33,14 @@ public class CompanyController {
     public CompanyResponseDTO createCompany(@Valid @RequestBody CompanyRequestDTO companyRequestDTO){
         return companyService.save(companyRequestDTO);
     }
+
+    @PatchMapping("/updatecompany/id/{id}")
+    public CompanyResponseDTO updateCompany(@PathVariable UUID id, @Valid @RequestBody CompanyRequestDTO companyRequestDTO){
+        return companyService.updateCompany(id,companyRequestDTO);
+    }
+
+    @DeleteMapping("/deletecompany/id/{id}")
+    public void deleteCompany(@PathVariable UUID id){
+        companyService.deleteCompany(id);
+    }
 }
