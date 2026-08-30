@@ -13,5 +13,6 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
     List<ApplicationEntity> findByJobEntity_JobId(UUID id);
     boolean existsByUserEntity_UserIdAndJobEntity_JobId(UUID userId, UUID jobId);
     boolean existsByResumeEntity_ResumeId(UUID resumeId);
+    boolean existsByJobEntity_JobId(UUID jobId);
 
 }

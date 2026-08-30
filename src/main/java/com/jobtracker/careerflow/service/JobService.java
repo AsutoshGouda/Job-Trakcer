@@ -1,15 +1,20 @@
 package com.jobtracker.careerflow.service;
 
+import com.jobtracker.careerflow.Exception_Handling.ApplicationExistsForThisJobIdException;
 import com.jobtracker.careerflow.Exception_Handling.CompanyNotFoundException;
 import com.jobtracker.careerflow.Exception_Handling.JobNotFoundException;
+import com.jobtracker.careerflow.entity.ApplicationEntity;
 import com.jobtracker.careerflow.entity.CompanyEntity;
 import com.jobtracker.careerflow.entity.JobEntity;
+import com.jobtracker.careerflow.repository.ApplicationRepository;
 import com.jobtracker.careerflow.repository.CompanyRepository;
 import com.jobtracker.careerflow.repository.JobRepository;
 import com.jobtracker.careerflow.requestDTO.JobRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UpdateJobRequestDTO;
 import com.jobtracker.careerflow.responseDTO.JobResponseDTO;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,10 +23,12 @@ public class JobService {
 
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public JobService(JobRepository jobRepository, CompanyRepository companyRepository){
+    public JobService(JobRepository jobRepository, CompanyRepository companyRepository, ApplicationRepository applicationRepository){
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     public JobResponseDTO mapToResponse(JobEntity jobEntity){
@@ -62,4 +69,27 @@ public class JobService {
         jobRepository.save(jobEntity);
         return mapToResponse(jobEntity);
     }
+
+    public JobResponseDTO updateJob(UUID jobId, UpdateJobRequestDTO updateJobRequestDTO){
+        JobEntity jobEntity = jobRepository.findById(jobId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
+
+        if(updateJobRequestDTO.url() != null && !updateJobRequestDTO.url().isEmpty()){
+            jobEntity.setUrl(updateJobRequestDTO.url());
+        }
+        if(updateJobRequestDTO.title() != null && !updateJobRequestDTO.title().isEmpty()){
+            jobEntity.setTitle(updateJobRequestDTO.title());
+        }
+        jobRepository.save(jobEntity);
+        return mapToResponse(jobEntity);
+    }
+
+    public void deleteJob(UUID jobId){
+        JobEntity jobEntity = jobRepository.findById(jobId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
+
+        if(applicationRepository.existsByJobEntity_JobId(jobId)){
+            throw new ApplicationExistsForThisJobIdException("For this job, applications exist!");
+        }
+        jobRepository.delete(jobEntity);
+    }
+
 }

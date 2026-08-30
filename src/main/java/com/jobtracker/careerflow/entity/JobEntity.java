@@ -49,4 +49,8 @@ public class JobEntity {
         this.updatedAt = OffsetDateTime.now();
     }
 
+    @PreUpdate
+    public void onUpdate(){
+        this.updatedAt = OffsetDateTime.now();
+    }
 }

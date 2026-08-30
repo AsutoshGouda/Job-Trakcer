@@ -1,6 +1,7 @@
 package com.jobtracker.careerflow.controller;
 
 import com.jobtracker.careerflow.requestDTO.JobRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UpdateJobRequestDTO;
 import com.jobtracker.careerflow.responseDTO.JobResponseDTO;
 import com.jobtracker.careerflow.service.JobService;
 import jakarta.validation.Valid;
@@ -37,6 +38,17 @@ public class JobController {
     @PostMapping
     public JobResponseDTO addJob(@Valid @RequestBody JobRequestDTO jobRequestDTO){
         return jobService.save(jobRequestDTO);
+    }
+
+    @PatchMapping("/updateJob/id/{id}")
+    public JobResponseDTO updateJob(@PathVariable UUID jobId,
+                                    @Valid @RequestBody UpdateJobRequestDTO updateJobRequestDTO){
+        return jobService.updateJob(jobId, updateJobRequestDTO);
+    }
+
+    @DeleteMapping("/deleteJob/id/{id}")
+    public void deleteJob(@PathVariable UUID jobId){
+        jobService.deleteJob(jobId);
     }
 
 }
