@@ -39,4 +39,14 @@ public class InterviewController {
         return interviewService.save(interviewRequestDTO);
     }
 
+    @PatchMapping("/updateInterview/id/{id}")
+    public InterviewResponseDTO updateInterview(@PathVariable UUID id, @Valid @RequestBody InterviewRequestDTO interviewRequestDTO){
+        return interviewService.updateInterview(id,interviewRequestDTO);
+    }
+
+    @DeleteMapping("/deleteInterview/id/{id}")
+    public void deleteInterview(@PathVariable UUID interviewId){
+        interviewService.deleteInterview(interviewId);
+    }
+
 }

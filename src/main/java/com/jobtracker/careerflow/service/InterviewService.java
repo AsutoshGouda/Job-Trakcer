@@ -79,4 +79,28 @@ public class InterviewService {
         return interviewRepository.findByApplicationEntity_ApplicationId(id).stream().map(this::mapToResponse).toList();
     }
 
+    public InterviewResponseDTO updateInterview(UUID id, InterviewRequestDTO interviewRequestDTO){
+        InterviewEntity interviewEntity =
+                interviewRepository.findById(id).orElseThrow(()-> new InterviewNotFoundException("Interview not found"));
+        if(!interviewRequestDTO.roundType().isEmpty()){
+            interviewEntity.setRoundType(interviewRequestDTO.roundType());
+        }
+        if(!interviewRequestDTO.interviewMode().isEmpty()){
+            interviewEntity.setInterviewMode(interviewRequestDTO.interviewMode());
+        }
+        if(interviewRequestDTO.roundNo() != 0){
+            interviewEntity.setRoundNo(interviewRequestDTO.roundNo());
+        }
+        if(interviewRequestDTO.scheduledAt() != null){
+            interviewEntity.setScheduledAt(interviewRequestDTO.scheduledAt());
+        }
+        interviewRepository.save(interviewEntity);
+        return mapToResponse(interviewEntity);
+    }
+
+    public void deleteInterview(UUID interviewId){
+        InterviewEntity interviewEntity =
+                interviewRepository.findById(interviewId).orElseThrow(()-> new InterviewNotFoundException("Interview Not Found!"));
+        interviewRepository.delete(interviewEntity);
+    }
 }
