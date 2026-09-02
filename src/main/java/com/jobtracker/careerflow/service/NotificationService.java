@@ -31,7 +31,7 @@ public class NotificationService {
                 notificationEntity.getType(),
                 notificationEntity.getChannel(),
                 notificationEntity.getMessage(),
-                notificationEntity.getIsRead(),
+                notificationEntity.isRead(),
                 notificationEntity.getCreatedAt()
         );
     }
@@ -77,7 +77,7 @@ public class NotificationService {
     public NotificationResponseDTO markAsRead(UUID id){
         NotificationEntity notificationEntity =
                 notificationRepository.findById(id).orElseThrow(()-> new NotificationNotFoundException("Notification Not Found!"));
-        notificationEntity.setIsRead(true);
+        notificationEntity.setRead(true);
         notificationRepository.save(notificationEntity);
         return mapToResponse(notificationEntity);
     }
