@@ -3,8 +3,11 @@ package com.jobtracker.careerflow.controller;
 import com.jobtracker.careerflow.requestDTO.JobRequestDTO;
 import com.jobtracker.careerflow.requestDTO.UpdateJobRequestDTO;
 import com.jobtracker.careerflow.responseDTO.JobResponseDTO;
+import com.jobtracker.careerflow.security.CustomerUserDetails;
 import com.jobtracker.careerflow.service.JobService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +29,14 @@ public class JobController {
     }
 
     @GetMapping("/id/{id}")
-    public JobResponseDTO getJobById(@PathVariable UUID id){
+    public JobResponseDTO getJobById(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails){
+
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+
+        UUID loggedInUserId = customerUserDetails.getUserId();
+
+        System.out.println("Logged in user: " + loggedInUserId);
+
         return jobService.getJobById(id);
     }
 

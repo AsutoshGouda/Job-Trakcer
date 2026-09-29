@@ -55,4 +55,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler({IncorrectPasswordException.class, UserAlreadyExistsException.class})
+    public ResponseEntity<ErrorResponseDTO> handleIncorrectPassword(Exception ex){
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                OffsetDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.UNAUTHORIZED);
+    }
+
 }
