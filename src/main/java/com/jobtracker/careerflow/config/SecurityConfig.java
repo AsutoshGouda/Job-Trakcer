@@ -35,8 +35,6 @@ public class SecurityConfig {
         // register JwtAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        System.out.println("Security Configuration loaded..");
-
         return http.build();
     }
 

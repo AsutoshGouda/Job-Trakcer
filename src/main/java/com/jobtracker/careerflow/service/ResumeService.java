@@ -38,8 +38,11 @@ public class ResumeService {
         );
     }
 
-    public ResumeResponseDTO getResumeById(UUID resumeId){
+    public ResumeResponseDTO getResumeById(UUID userId, UUID resumeId){
         ResumeEntity resumeEntity = resumeRepository.findById(resumeId).orElseThrow(() -> new ResumeNotFoundException("Resume Not Found!"));
+        if(!userId.equals(resumeEntity.getUserEntity().getUserId())){
+            throw new ResumeNotFoundException("Resume Not Found!");
+        }
         return mapToResponse(resumeEntity);
     }
 
@@ -47,13 +50,13 @@ public class ResumeService {
         return resumeRepository.findByUserEntity_UserId(userId).stream().map(this::mapToResponse).toList();
     }
 
-    public List<ResumeResponseDTO> getAllResumes(){
-        return resumeRepository.findAll().stream().map(this::mapToResponse).toList();
+    public List<ResumeResponseDTO> getAllResumes(UUID userId){
+        return resumeRepository.findByUserEntity_UserId(userId).stream().map(this::mapToResponse).toList();
     }
 
-    public ResumeResponseDTO save(ResumeRequestDTO resumeRequestDTO){
+    public ResumeResponseDTO save(UUID userId, ResumeRequestDTO resumeRequestDTO){
         UserEntity userEntity =
-                userRepository.getUserByUserId(resumeRequestDTO.userId()).orElseThrow(() -> new UserNotFoundException("User Not Found!"));
+                userRepository.getUserByUserId(userId).orElseThrow(() -> new UserNotFoundException("User Not Found!"));
 
         ResumeEntity resumeEntity = new ResumeEntity();
         resumeEntity.setUserEntity(userEntity);
@@ -68,8 +71,11 @@ public class ResumeService {
 
     }
 
-    public void deleteResume(UUID id){
+    public void deleteResume(UUID userId, UUID id){
         ResumeEntity resumeEntity = resumeRepository.findById(id).orElseThrow(()->new ResumeNotFoundException("Resume Not Found!"));
+        if(!userId.equals(resumeEntity.getUserEntity().getUserId())){
+            throw new ResumeNotFoundException("Resume Not Found!");
+        }
         if(applicationRepository.existsByResumeEntity_ResumeId(resumeEntity.getResumeId())){
             throw new ResumeAlreadyUsedException("Resume is being used by other applications!");
         }

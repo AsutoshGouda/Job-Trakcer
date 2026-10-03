@@ -1,5 +1,6 @@
 package com.jobtracker.careerflow.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,8 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authheader.substring(7);
+        String userEmail;
 
-        final String userEmail = jwtService.extractEmail(jwt);
+        try {
+            userEmail = jwtService.extractEmail(jwt);
+        } catch (JwtException e) {
+            System.out.println("JWT EXCEPTION: " + e.getClass().getName());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or Expired Token.");
+            return;
+        }
 
 
         if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){

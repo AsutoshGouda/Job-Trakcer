@@ -2,8 +2,11 @@ package com.jobtracker.careerflow.controller;
 
 import com.jobtracker.careerflow.requestDTO.NotificationRequestDTO;
 import com.jobtracker.careerflow.responseDTO.NotificationResponseDTO;
+import com.jobtracker.careerflow.security.CustomerUserDetails;
 import com.jobtracker.careerflow.service.NotificationService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,38 +23,45 @@ public class NotificationController {
     }
 
     @GetMapping
-    public List<NotificationResponseDTO> getAllNotifications(){
-        return notificationService.getAllNotifications();
+    public List<NotificationResponseDTO> getAllMyNotifications(@AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        return notificationService.getAllMyNotifications(userId);
     }
 
     @GetMapping("/id/{id}")
-    public NotificationResponseDTO getNotificationById(@PathVariable UUID id){
-        return notificationService.getNotificationById(id);
+    public NotificationResponseDTO getNotificationById(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        return notificationService.getNotificationById(userId, id);
     }
 
-    @GetMapping("/user/{id}")
-    public List<NotificationResponseDTO> getNotificationByUserId(@PathVariable UUID id){
-        return notificationService.getNotificationsByUserId(id);
-    }
-
-    @GetMapping("/user/{id}/unread")
-    public List<NotificationResponseDTO> getUnReadNotificationByUserId(@PathVariable UUID id){
-        return notificationService.getUnreadNotificationsByUserId(id);
+    @GetMapping("/unread")
+    public List<NotificationResponseDTO> getUnReadNotifications(@AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        return notificationService.getUnreadNotificationsByUserId(userId);
     }
 
     @PostMapping
-    public NotificationResponseDTO addNotification(@Valid @RequestBody NotificationRequestDTO notificationRequestDTO){
-        return notificationService.save(notificationRequestDTO);
+    public NotificationResponseDTO addNotification(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody NotificationRequestDTO notificationRequestDTO){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        return notificationService.save(userId, notificationRequestDTO);
     }
 
     @PatchMapping("/id/{id}/read")
-    public NotificationResponseDTO readNotifications(@PathVariable UUID id){
-        return notificationService.markAsRead(id);
+    public NotificationResponseDTO markNotificationsAsRead(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        return notificationService.markAsRead(userId, id);
     }
 
     @DeleteMapping("/id/{id}")
-    public void deleteNotifications(@PathVariable UUID id){
-        notificationService.deleteNotification(id);
+    public void deleteNotifications(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        notificationService.deleteNotification(userId, id);
     }
 
 }

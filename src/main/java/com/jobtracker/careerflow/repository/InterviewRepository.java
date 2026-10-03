@@ -9,8 +9,11 @@ import java.util.UUID;
 
 public interface InterviewRepository extends JpaRepository<InterviewEntity, UUID> {
 
-    List<InterviewEntity> findByApplicationEntity_ApplicationId(UUID id);
-    boolean existsByApplicationEntityAndRoundNoAndRoundType(ApplicationEntity applicationEntity, int roundNo, String roundType);
+    List<InterviewEntity> findByApplicationEntity_ApplicationIdAndApplicationEntity_UserEntity_UserId(UUID id, UUID userId);
     boolean existsByApplicationEntity(ApplicationEntity applicationEntity);
+    boolean existsByApplicationEntityAndRoundNo(
+            ApplicationEntity applicationEntity,
+            int roundNo
+    );
 
 }

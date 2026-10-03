@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface NoteRepository extends JpaRepository<NoteEntity, UUID> {
 
-    List<NoteEntity> findByApplicationEntity_ApplicationId(UUID applicationId);
+    List<NoteEntity> findByApplicationEntity_UserEntity_UserId(UUID userId);
+    List<NoteEntity> findByApplicationEntity_UserEntity_UserIdAndApplicationEntity_ApplicationId(UUID userId, UUID applicationId);
 
 }

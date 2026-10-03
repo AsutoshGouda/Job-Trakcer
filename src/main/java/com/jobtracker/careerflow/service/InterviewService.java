@@ -40,15 +40,17 @@ public class InterviewService {
         );
     }
 
-    public InterviewResponseDTO save(InterviewRequestDTO interviewRequestDTO){
-
-        System.out.println("InterviewService.save() reached");
+    public InterviewResponseDTO save(UUID userId, InterviewRequestDTO interviewRequestDTO){
 
         ApplicationEntity applicationEntity =
                 applicationRepository.findById(interviewRequestDTO.applicationId()).orElseThrow(()-> new ApplicationNotFoundException("Application Not Found"));
 
-        if(interviewRepository.existsByApplicationEntityAndRoundNoAndRoundType(applicationEntity,
-                interviewRequestDTO.roundNo(), interviewRequestDTO.roundType())){
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException("Application Not Found");
+        }
+
+        if(interviewRepository.existsByApplicationEntityAndRoundNo(applicationEntity,
+                interviewRequestDTO.roundNo())){
             throw new InterviewExistsException("Interview details are duplicate!");
         }
 
@@ -64,24 +66,26 @@ public class InterviewService {
 
     }
 
-    public InterviewResponseDTO getInterviewById(UUID id){
+    public InterviewResponseDTO getInterviewById(UUID userId, UUID id){
         InterviewEntity interviewEntity =
                 interviewRepository.findById(id).orElseThrow(()->new InterviewNotFoundException("Interview Not " +
                         "Found!"));
+        if(!userId.equals(interviewEntity.getApplicationEntity().getUserEntity().getUserId())){
+            throw new InterviewNotFoundException("Interview Not Found!");
+        }
         return mapToResponse(interviewEntity);
     }
 
-    public List<InterviewResponseDTO> getAllInterviews(){
-        return interviewRepository.findAll().stream().map(this::mapToResponse).toList();
+    public List<InterviewResponseDTO> getInterviewsByApplicationId(UUID userId, UUID id){
+        return interviewRepository.findByApplicationEntity_ApplicationIdAndApplicationEntity_UserEntity_UserId(id, userId).stream().map(this::mapToResponse).toList();
     }
 
-    public List<InterviewResponseDTO> getInterviewsByApplicationId(UUID id){
-        return interviewRepository.findByApplicationEntity_ApplicationId(id).stream().map(this::mapToResponse).toList();
-    }
-
-    public InterviewResponseDTO updateInterview(UUID id, InterviewRequestDTO interviewRequestDTO){
+    public InterviewResponseDTO updateInterview(UUID userId, UUID id, InterviewRequestDTO interviewRequestDTO){
         InterviewEntity interviewEntity =
                 interviewRepository.findById(id).orElseThrow(()-> new InterviewNotFoundException("Interview not found"));
+        if(!userId.equals(interviewEntity.getApplicationEntity().getUserEntity().getUserId())){
+            throw new InterviewNotFoundException("Interview not found");
+        }
         if(!interviewRequestDTO.roundType().isEmpty()){
             interviewEntity.setRoundType(interviewRequestDTO.roundType());
         }
@@ -98,9 +102,13 @@ public class InterviewService {
         return mapToResponse(interviewEntity);
     }
 
-    public void deleteInterview(UUID interviewId){
+    public void deleteInterview(UUID userId, UUID id){
         InterviewEntity interviewEntity =
-                interviewRepository.findById(interviewId).orElseThrow(()-> new InterviewNotFoundException("Interview Not Found!"));
+                interviewRepository.findById(id).orElseThrow(()-> new InterviewNotFoundException("Interview Not " +
+                        "Found!"));
+        if(!userId.equals(interviewEntity.getApplicationEntity().getUserEntity().getUserId())){
+            throw new InterviewNotFoundException("Interview not found");
+        }
         interviewRepository.delete(interviewEntity);
     }
 }

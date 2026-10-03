@@ -36,9 +36,9 @@ public class NotificationService {
         );
     }
 
-    public NotificationResponseDTO save(NotificationRequestDTO notificationRequestDTO){
+    public NotificationResponseDTO save(UUID userId, NotificationRequestDTO notificationRequestDTO){
         UserEntity userEntity =
-                userRepository.findById(notificationRequestDTO.userId()).orElseThrow(()->new UserNotFoundException(
+                userRepository.findById(userId).orElseThrow(()->new UserNotFoundException(
                         "User Not Found!"));
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setUserEntity(userEntity);
@@ -50,41 +50,43 @@ public class NotificationService {
         return mapToResponse(notificationEntity);
     }
 
-    public List<NotificationResponseDTO> getAllNotifications(){
-        return notificationRepository.findAll().stream().map(this::mapToResponse).toList();
+    public List<NotificationResponseDTO> getAllMyNotifications(UUID userId){
+        return notificationRepository.findByUserEntity_UserId(userId).stream().map(this::mapToResponse).toList();
     }
 
-    public NotificationResponseDTO getNotificationById(UUID id){
+    public NotificationResponseDTO getNotificationById(UUID userId, UUID id){
         NotificationEntity notificationEntity =
                 notificationRepository.findById(id).orElseThrow(()-> new NotificationNotFoundException("Notification Not Found!"));
+        if(!userId.equals(notificationEntity.getUserEntity().getUserId())){
+            throw new NotificationNotFoundException("Notification Not Found!");
+        }
         return mapToResponse(notificationEntity);
     }
 
-    public List<NotificationResponseDTO> getNotificationsByUserId(UUID id){
-        userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("User Not Found!"));
+    public List<NotificationResponseDTO> getUnreadNotificationsByUserId(UUID userId){
+        userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("User Not Found!"));
         List<NotificationEntity> notificationEntities =
-                notificationRepository.findByUserEntity_UserId(id);
+                notificationRepository.findByUserEntity_UserIdAndIsReadFalse(userId);
         return notificationEntities.stream().map(this::mapToResponse).toList();
     }
 
-    public List<NotificationResponseDTO> getUnreadNotificationsByUserId(UUID id){
-        userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("User Not Found!"));
-        List<NotificationEntity> notificationEntities =
-                notificationRepository.findByUserEntity_UserIdAndIsReadFalse(id);
-        return notificationEntities.stream().map(this::mapToResponse).toList();
-    }
-
-    public NotificationResponseDTO markAsRead(UUID id){
+    public NotificationResponseDTO markAsRead(UUID userId, UUID id){
         NotificationEntity notificationEntity =
                 notificationRepository.findById(id).orElseThrow(()-> new NotificationNotFoundException("Notification Not Found!"));
+        if(!userId.equals(notificationEntity.getUserEntity().getUserId())){
+            throw new NotificationNotFoundException("Notification Not Found!");
+        }
         notificationEntity.setRead(true);
         notificationRepository.save(notificationEntity);
         return mapToResponse(notificationEntity);
     }
 
-    public void deleteNotification(UUID id){
+    public void deleteNotification(UUID userId, UUID id){
         NotificationEntity notificationEntity =
                 notificationRepository.findById(id).orElseThrow(()-> new NotificationNotFoundException("Notification Not Found!"));
+        if(!userId.equals(notificationEntity.getUserEntity().getUserId())){
+            throw new NotificationNotFoundException("Notification Not Found!");
+        }
         notificationRepository.delete(notificationEntity);
     }
 

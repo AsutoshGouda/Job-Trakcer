@@ -45,7 +45,7 @@ public class ApplicationService {
         );
     }
 
-    public ApplicationResponseDTO save(ApplicationRequestDTO applicationRequestDTO){
+    public ApplicationResponseDTO save(ApplicationRequestDTO applicationRequestDTO, UUID userId){
         ResumeEntity resumeEntity =
                 resumeRepository.findById(applicationRequestDTO.resumeId()).orElseThrow(() -> new ResumeNotFoundException(
                         "Resume Not Found!"));
@@ -54,7 +54,7 @@ public class ApplicationService {
                 jobRepository.findById(applicationRequestDTO.jobId()).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
 
         UserEntity userEntity =
-                userRepository.findById(applicationRequestDTO.userId()).orElseThrow(() -> new UserNotFoundException("User " +
+                userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User " +
                         "Not Found!"));
 
         UserEntity resumeOwner = resumeEntity.getUserEntity();
@@ -79,14 +79,17 @@ public class ApplicationService {
 
     }
 
-    public List<ApplicationResponseDTO> getAllApplications(){
-        return applicationRepository.findAll().stream().map(this::mapToResponse).toList();
+    public List<ApplicationResponseDTO> getAllApplications(UUID userId){
+        return applicationRepository.findByUserEntity_UserId(userId).stream().map(this::mapToResponse).toList();
     }
 
-    public ApplicationResponseDTO getApplicationById(UUID id){
+    public ApplicationResponseDTO getApplicationById(UUID userId, UUID id){
         ApplicationEntity applicationEntity =
                 applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException(
                 "Application Does not exists!"));
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException("Application Does not exists!");
+        }
         return mapToResponse(applicationEntity);
     }
 
@@ -94,23 +97,26 @@ public class ApplicationService {
         return applicationRepository.findByUserEntity_UserId(id).stream().map(this::mapToResponse).toList();
     }
 
-    public List<ApplicationResponseDTO> getApplicationsByJobEntity_JobId(UUID id){
-        return applicationRepository.findByJobEntity_JobId(id).stream().map(this::mapToResponse).toList();
+    public List<ApplicationResponseDTO> getApplicationsByJobEntity_JobId(UUID userId, UUID jobId){
+        return applicationRepository.findByJobEntity_JobIdAndUserEntity_UserId(jobId, userId).stream().map(this::mapToResponse).toList();
     }
 
-    public ApplicationResponseDTO updateApplied(UUID id, UpdateApplicationRequestDTO updatedAppliedAt){
+    public ApplicationResponseDTO updateApplied(UUID id, UUID userId, UpdateApplicationRequestDTO updatedAppliedAt){
         ApplicationEntity applicationEntity = applicationRepository.findById(id).orElseThrow(()-> new ApplicationNotFoundException("Application Not Found!"));
-        System.out.println("OLD: " + applicationEntity.getAppliedAt());
-        System.out.println("NEW: " + updatedAppliedAt.appliedAt());
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException("Application Not Found!");
+        }
         applicationEntity.setAppliedAt(updatedAppliedAt.appliedAt());
         applicationRepository.save(applicationEntity);
-        System.out.println("AFTER: " + applicationEntity.getAppliedAt());
         return mapToResponse(applicationEntity);
     }
 
-    public void deleteApplication(UUID id){
+    public void deleteApplication(UUID userId, UUID id){
         ApplicationEntity applicationEntity =
                 applicationRepository.findById(id).orElseThrow(()-> new ApplicationNotFoundException("Application Not Found!"));
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException("Application Not Found!");
+        }
         if(interviewRepository.existsByApplicationEntity(applicationEntity)){
             throw new ApplicationHasInterviewsException("Interview exists for this application!");
         }

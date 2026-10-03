@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, UUID> {
 
     List<ApplicationEntity> findByUserEntity_UserId(UUID id);
-    List<ApplicationEntity> findByJobEntity_JobId(UUID id);
+    List<ApplicationEntity> findByJobEntity_JobIdAndUserEntity_UserId(UUID jobId, UUID userId);
     boolean existsByUserEntity_UserIdAndJobEntity_JobId(UUID userId, UUID jobId);
     boolean existsByResumeEntity_ResumeId(UUID resumeId);
     boolean existsByJobEntity_JobId(UUID jobId);

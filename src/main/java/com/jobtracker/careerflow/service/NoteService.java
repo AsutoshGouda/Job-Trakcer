@@ -35,10 +35,13 @@ public class NoteService {
         );
     }
 
-    public NoteResponseDTO save(NoteRequestDTO noteRequestDTO){
+    public NoteResponseDTO save(UUID userId, NoteRequestDTO noteRequestDTO){
         ApplicationEntity applicationEntity =
                 applicationRepository.findById(noteRequestDTO.applicationId()).orElseThrow(()->new ApplicationNotFoundException("Application Not Found!"));
 
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException("Application Not Found!");
+        }
         NoteEntity noteEntity = new NoteEntity();
         noteEntity.setApplicationEntity(applicationEntity);
         noteEntity.setContent(noteRequestDTO.content());
@@ -46,29 +49,40 @@ public class NoteService {
         return mapToResponse(noteEntity);
     }
 
-    public List<NoteResponseDTO> getAllNotes(){
-        return noteRepository.findAll().stream().map(this::mapToResponse).toList();
+    public List<NoteResponseDTO> getAllMyNotes(UUID userId){
+        return noteRepository.findByApplicationEntity_UserEntity_UserId(userId).stream().map(this::mapToResponse).toList();
     }
 
-    public NoteResponseDTO getNoteByNoteId(UUID noteId){
+    public NoteResponseDTO getNoteByNoteId(UUID userId, UUID noteId){
         NoteEntity noteEntity = noteRepository.findById(noteId).orElseThrow(()->new NoteNotFoundException("Note Not Found!"));
+        if(!userId.equals(noteEntity.getApplicationEntity().getUserEntity().getUserId())){
+            throw new NoteNotFoundException("Note Not Found!");
+        }
         return mapToResponse(noteEntity);
     }
 
-    public List<NoteResponseDTO> getNotesByApplicationId(UUID applicationId){
+    public List<NoteResponseDTO> getNotesByApplicationId(UUID userId, UUID applicationId){
         ApplicationEntity applicationEntity =
                 applicationRepository.findById(applicationId).orElseThrow(()-> new ApplicationNotFoundException(
                         "Application Doesn't Exist!"));
-        List<NoteEntity> noteEntities = noteRepository.findByApplicationEntity_ApplicationId(applicationId);
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException(
+                    "Application Doesn't Exist!");
+        }
+        List<NoteEntity> noteEntities = noteRepository.findByApplicationEntity_UserEntity_UserIdAndApplicationEntity_ApplicationId(userId, applicationId);
         if(noteEntities.isEmpty()){
             throw new NoteNotFoundException("Application Found but has no notes!");
         }
         return noteEntities.stream().map(this::mapToResponse).toList();
     }
 
-    public NoteResponseDTO updateNote(UUID noteId, UpdateNoteRequestDTO updateNoteRequestDTO){
+    public NoteResponseDTO updateNote(UUID userId, UUID noteId, UpdateNoteRequestDTO updateNoteRequestDTO){
         NoteEntity noteEntity =
                 noteRepository.findById(noteId).orElseThrow(() -> new NoteNotFoundException("Note Not Found!"));
+
+        if(!userId.equals(noteEntity.getApplicationEntity().getUserEntity().getUserId())){
+            throw new NoteNotFoundException("Note Not Found!");
+        }
 
         if (updateNoteRequestDTO.content() != null && !updateNoteRequestDTO.content().isEmpty()) {
             noteEntity.setContent(updateNoteRequestDTO.content());
@@ -78,8 +92,12 @@ public class NoteService {
         return mapToResponse(noteEntity);
     }
 
-    public void deleteNote(UUID noteId){
+    public void deleteNote(UUID userId, UUID noteId){
         NoteEntity noteEntity = noteRepository.findById(noteId).orElseThrow(()->new NoteNotFoundException("Note Not Found!"));
+
+        if(!userId.equals(noteEntity.getApplicationEntity().getUserEntity().getUserId())){
+            throw new NoteNotFoundException("Note Not Found!");
+        }
         noteRepository.delete(noteEntity);
     }
 }
