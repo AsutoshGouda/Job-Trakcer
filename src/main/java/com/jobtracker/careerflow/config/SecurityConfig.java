@@ -1,12 +1,14 @@
 package com.jobtracker.careerflow.config;
 
 import com.jobtracker.careerflow.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -35,7 +37,15 @@ public class SecurityConfig {
         // register JwtAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint()));
+
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint(){
+        return ((request, response, authException) ->
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Authentication Required."));
     }
 
 }

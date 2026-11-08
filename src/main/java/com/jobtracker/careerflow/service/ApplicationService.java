@@ -73,7 +73,6 @@ public class ApplicationService {
         applicationEntity.setJobEntity(jobEntity);
         applicationEntity.setUserEntity(userEntity);
         applicationEntity.setStatus("APPLIED");
-        applicationEntity.setAppliedAt(applicationRequestDTO.appliedAt());
         applicationRepository.save(applicationEntity);
         return mapToResponse(applicationEntity);
 
@@ -91,10 +90,6 @@ public class ApplicationService {
             throw new ApplicationNotFoundException("Application Does not exists!");
         }
         return mapToResponse(applicationEntity);
-    }
-
-    public  List<ApplicationResponseDTO> getApplicationsByUserEntity_UserId(UUID id){
-        return applicationRepository.findByUserEntity_UserId(id).stream().map(this::mapToResponse).toList();
     }
 
     public List<ApplicationResponseDTO> getApplicationsByJobEntity_JobId(UUID userId, UUID jobId){

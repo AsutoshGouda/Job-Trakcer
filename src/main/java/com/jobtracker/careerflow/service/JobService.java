@@ -2,6 +2,7 @@ package com.jobtracker.careerflow.service;
 
 import com.jobtracker.careerflow.Exception_Handling.ApplicationExistsForThisJobIdException;
 import com.jobtracker.careerflow.Exception_Handling.CompanyNotFoundException;
+import com.jobtracker.careerflow.Exception_Handling.InvalidAttributeException;
 import com.jobtracker.careerflow.Exception_Handling.JobNotFoundException;
 import com.jobtracker.careerflow.entity.ApplicationEntity;
 import com.jobtracker.careerflow.entity.CompanyEntity;
@@ -14,6 +15,7 @@ import com.jobtracker.careerflow.requestDTO.UpdateJobRequestDTO;
 import com.jobtracker.careerflow.responseDTO.JobResponseDTO;
 import org.springframework.stereotype.Service;
 
+import javax.naming.directory.InvalidAttributesException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +36,10 @@ public class JobService {
     public JobResponseDTO mapToResponse(JobEntity jobEntity){
         return new JobResponseDTO(
                 jobEntity.getJobId(),
-                jobEntity.getCompanyEntity().getCompanyId(),
+                jobEntity.getCompanyEntity() != null
+                        ? jobEntity.getCompanyEntity().getCompanyId()
+                        : null,
+                jobEntity.getCompanyNameOther(),
                 jobEntity.getTitle(),
                 jobEntity.getPostedAt(),
                 jobEntity.getStatus(),
@@ -59,26 +64,83 @@ public class JobService {
     }
 
     public JobResponseDTO save(JobRequestDTO jobRequestDTO){
+        if (jobRequestDTO.companyId() == null &&
+                (jobRequestDTO.companyNameOther() == null || jobRequestDTO.companyNameOther().isBlank())) {
+
+            throw new IllegalArgumentException("Company name cannot be blank.");
+        }
+
+        if (jobRequestDTO.companyId() != null &&
+                jobRequestDTO.companyNameOther() != null) {
+
+            throw new IllegalArgumentException("Provide either companyId or companyNameOther, not both.");
+        }
+
         JobEntity jobEntity = new JobEntity();
-        CompanyEntity companyEntity = companyRepository.findById(jobRequestDTO.companyId()).orElseThrow(() -> new CompanyNotFoundException("Company Not Found!"));
-        jobEntity.setCompanyEntity(companyEntity);
+
+        if(jobRequestDTO.companyId() != null){
+            CompanyEntity companyEntity = companyRepository.findById(jobRequestDTO.companyId())
+                    .orElseThrow(() -> new CompanyNotFoundException("Company Not Found!"));
+
+            jobEntity.setCompanyEntity(companyEntity);
+        }else{
+            jobEntity.setCompanyNameOther(jobRequestDTO.companyNameOther());
+        }
+
         jobEntity.setTitle(jobRequestDTO.title());
         jobEntity.setPostedAt(jobRequestDTO.postedAt());
         jobEntity.setUrl(jobRequestDTO.url());
         jobEntity.setStatus("OPEN");
+
         jobRepository.save(jobEntity);
         return mapToResponse(jobEntity);
     }
 
     public JobResponseDTO updateJob(UUID jobId, UpdateJobRequestDTO updateJobRequestDTO){
-        JobEntity jobEntity = jobRepository.findById(jobId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
+        JobEntity jobEntity = jobRepository.findById(jobId)
+                .orElseThrow(() -> new JobNotFoundException("Job Not Found!"));
 
-        if(updateJobRequestDTO.url() != null && !updateJobRequestDTO.url().isEmpty()){
+        if(updateJobRequestDTO.companyId() != null &&
+                updateJobRequestDTO.companyNameOther() != null){
+            throw new IllegalArgumentException(
+                    "Provide either companyId or companyNameOther, not both."
+            );
+        }
+
+        if(updateJobRequestDTO.companyId() != null){
+            CompanyEntity companyEntity = companyRepository.findById(updateJobRequestDTO.companyId())
+                    .orElseThrow(() -> new CompanyNotFoundException("Company Not Found!"));
+
+            jobEntity.setCompanyEntity(companyEntity);
+            jobEntity.setCompanyNameOther(null);
+        }
+
+        if(updateJobRequestDTO.companyNameOther() != null){
+            if(updateJobRequestDTO.companyNameOther().isBlank()){
+                throw new IllegalArgumentException("Company name cannot be blank.");
+            }
+
+            jobEntity.setCompanyEntity(null);
+            jobEntity.setCompanyNameOther(updateJobRequestDTO.companyNameOther());
+        }
+
+        if(updateJobRequestDTO.status() != null && !updateJobRequestDTO.status().isBlank()){
+            if(!updateJobRequestDTO.status().equals("OPEN") &&
+                    !updateJobRequestDTO.status().equals("CLOSED") &&
+                    !updateJobRequestDTO.status().equals("EXPIRED")){
+                throw new InvalidAttributeException("Invalid status.");
+            }
+            jobEntity.setStatus(updateJobRequestDTO.status());
+        }
+
+        if(updateJobRequestDTO.url() != null && !updateJobRequestDTO.url().isBlank()){
             jobEntity.setUrl(updateJobRequestDTO.url());
         }
-        if(updateJobRequestDTO.title() != null && !updateJobRequestDTO.title().isEmpty()){
+
+        if(updateJobRequestDTO.title() != null && !updateJobRequestDTO.title().isBlank()){
             jobEntity.setTitle(updateJobRequestDTO.title());
         }
+
         jobRepository.save(jobEntity);
         return mapToResponse(jobEntity);
     }

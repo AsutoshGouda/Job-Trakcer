@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public record ApplicationRequestDTO (
         UUID resumeId,
-        UUID jobId,
-        OffsetDateTime appliedAt
+        UUID jobId
 ){
 }

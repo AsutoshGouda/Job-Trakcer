@@ -1,6 +1,7 @@
 package com.jobtracker.careerflow.controller;
 
 import com.jobtracker.careerflow.requestDTO.InterviewRequestDTO;
+import com.jobtracker.careerflow.requestDTO.InterviewUpdateRequestDTO;
 import com.jobtracker.careerflow.responseDTO.InterviewResponseDTO;
 import com.jobtracker.careerflow.security.CustomerUserDetails;
 import com.jobtracker.careerflow.service.InterviewService;
@@ -44,10 +45,11 @@ public class InterviewController {
     }
 
     @PatchMapping("/updateInterview/id/{id}")
-    public InterviewResponseDTO updateInterview(@PathVariable UUID id, @Valid @RequestBody InterviewRequestDTO interviewRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
+    public InterviewResponseDTO updateInterview(@PathVariable UUID id, @Valid @RequestBody
+    InterviewUpdateRequestDTO interviewUpdateRequestDTO, @AuthenticationPrincipal UserDetails userDetails){
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
         UUID userId = customerUserDetails.getUserId();
-        return interviewService.updateInterview(userId, id,interviewRequestDTO);
+        return interviewService.updateInterview(userId, id,interviewUpdateRequestDTO);
     }
 
     @DeleteMapping("/deleteInterview/id/{interviewId}")

@@ -22,8 +22,11 @@ public class JobEntity {
     private UUID jobId;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id")
     private CompanyEntity companyEntity;
+
+    @Column(name = "company_name_other")
+    private String companyNameOther;
 
     @Column(name = "title", nullable = false)
     private String title;

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record JobRequestDTO(
         UUID companyId,
+        String companyNameOther,
 
         @NotBlank(message = "Job title cannot be empty!")
         String title,

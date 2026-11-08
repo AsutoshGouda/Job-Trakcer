@@ -38,13 +38,6 @@ public class ApplicationController {
         return applicationService.getApplicationById(userId, id);
     }
 
-    @GetMapping("/user")
-    public List<ApplicationResponseDTO> getMyApplications(@AuthenticationPrincipal UserDetails userDetails){
-        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
-        UUID userId = customerUserDetails.getUserId();
-        return applicationService.getApplicationsByUserEntity_UserId(userId);
-    }
-
     @GetMapping("/job/{id}")
     public List<ApplicationResponseDTO> getApplicationsByJobId(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails){
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;

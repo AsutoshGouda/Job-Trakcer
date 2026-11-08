@@ -8,6 +8,7 @@ import com.jobtracker.careerflow.entity.InterviewEntity;
 import com.jobtracker.careerflow.repository.ApplicationRepository;
 import com.jobtracker.careerflow.repository.InterviewRepository;
 import com.jobtracker.careerflow.requestDTO.InterviewRequestDTO;
+import com.jobtracker.careerflow.requestDTO.InterviewUpdateRequestDTO;
 import com.jobtracker.careerflow.responseDTO.InterviewResponseDTO;
 import org.springframework.stereotype.Service;
 
@@ -80,23 +81,27 @@ public class InterviewService {
         return interviewRepository.findByApplicationEntity_ApplicationIdAndApplicationEntity_UserEntity_UserId(id, userId).stream().map(this::mapToResponse).toList();
     }
 
-    public InterviewResponseDTO updateInterview(UUID userId, UUID id, InterviewRequestDTO interviewRequestDTO){
+    public InterviewResponseDTO updateInterview(UUID userId, UUID id, InterviewUpdateRequestDTO interviewUpdateRequestDTO){
         InterviewEntity interviewEntity =
                 interviewRepository.findById(id).orElseThrow(()-> new InterviewNotFoundException("Interview not found"));
         if(!userId.equals(interviewEntity.getApplicationEntity().getUserEntity().getUserId())){
             throw new InterviewNotFoundException("Interview not found");
         }
-        if(!interviewRequestDTO.roundType().isEmpty()){
-            interviewEntity.setRoundType(interviewRequestDTO.roundType());
+
+        if(interviewUpdateRequestDTO.roundType() != null && !interviewUpdateRequestDTO.roundType().isBlank()){
+            interviewEntity.setRoundType(interviewUpdateRequestDTO.roundType());
         }
-        if(!interviewRequestDTO.interviewMode().isEmpty()){
-            interviewEntity.setInterviewMode(interviewRequestDTO.interviewMode());
+        if(interviewUpdateRequestDTO.interviewMode() != null && !interviewUpdateRequestDTO.interviewMode().isBlank()){
+            interviewEntity.setInterviewMode(interviewUpdateRequestDTO.interviewMode());
         }
-        if(interviewRequestDTO.roundNo() != 0){
-            interviewEntity.setRoundNo(interviewRequestDTO.roundNo());
+        if(interviewUpdateRequestDTO.roundNo() != null && interviewUpdateRequestDTO.roundNo() > 0 && interviewUpdateRequestDTO.roundNo() != interviewEntity.getRoundNo() ){
+            if(interviewRepository.existsByApplicationEntityAndRoundNoAndInterviewIdNot(interviewEntity.getApplicationEntity(),interviewUpdateRequestDTO.roundNo(), id)){
+                throw new InterviewExistsException("Interview Already Exists");
+            }
+            interviewEntity.setRoundNo(interviewUpdateRequestDTO.roundNo());
         }
-        if(interviewRequestDTO.scheduledAt() != null){
-            interviewEntity.setScheduledAt(interviewRequestDTO.scheduledAt());
+        if(interviewUpdateRequestDTO.scheduledAt() != null){
+            interviewEntity.setScheduledAt(interviewUpdateRequestDTO.scheduledAt());
         }
         interviewRepository.save(interviewEntity);
         return mapToResponse(interviewEntity);

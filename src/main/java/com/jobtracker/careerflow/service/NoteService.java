@@ -70,9 +70,11 @@ public class NoteService {
                     "Application Doesn't Exist!");
         }
         List<NoteEntity> noteEntities = noteRepository.findByApplicationEntity_UserEntity_UserIdAndApplicationEntity_ApplicationId(userId, applicationId);
+        /*
         if(noteEntities.isEmpty()){
             throw new NoteNotFoundException("Application Found but has no notes!");
         }
+         */
         return noteEntities.stream().map(this::mapToResponse).toList();
     }
 
@@ -84,7 +86,7 @@ public class NoteService {
             throw new NoteNotFoundException("Note Not Found!");
         }
 
-        if (updateNoteRequestDTO.content() != null && !updateNoteRequestDTO.content().isEmpty()) {
+        if (updateNoteRequestDTO.content() != null && !updateNoteRequestDTO.content().isBlank()) {
             noteEntity.setContent(updateNoteRequestDTO.content());
         }
 

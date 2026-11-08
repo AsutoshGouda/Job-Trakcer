@@ -11,6 +11,7 @@ import java.util.UUID;
 public class JobResponseDTO {
     UUID jobId;
     UUID companyId;
+    String companyNameOther;
     String title;
     OffsetDateTime postedAt;
     String status;

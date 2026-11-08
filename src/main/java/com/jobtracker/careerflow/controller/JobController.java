@@ -23,19 +23,12 @@ public class JobController {
         this.jobService = jobService;
     }
 
-    @GetMapping
-    public List<JobResponseDTO> getAllJobs(){
-        return jobService.getAllJobs();
-    }
-
     @GetMapping("/id/{id}")
     public JobResponseDTO getJobById(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails){
 
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
 
         UUID loggedInUserId = customerUserDetails.getUserId();
-
-        System.out.println("Logged in user: " + loggedInUserId);
 
         return jobService.getJobById(id);
     }
@@ -50,13 +43,13 @@ public class JobController {
         return jobService.save(jobRequestDTO);
     }
 
-    @PatchMapping("/updateJob/id/{id}")
+    @PatchMapping("/updateJob/id/{jobId}")
     public JobResponseDTO updateJob(@PathVariable UUID jobId,
                                     @Valid @RequestBody UpdateJobRequestDTO updateJobRequestDTO){
         return jobService.updateJob(jobId, updateJobRequestDTO);
     }
 
-    @DeleteMapping("/deleteJob/id/{id}")
+    @DeleteMapping("/deleteJob/id/{jobId}")
     public void deleteJob(@PathVariable UUID jobId){
         jobService.deleteJob(jobId);
     }

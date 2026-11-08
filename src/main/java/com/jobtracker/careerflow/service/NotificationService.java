@@ -28,9 +28,9 @@ public class NotificationService {
         return new NotificationResponseDTO(
                 notificationEntity.getNotificationId(),
                 notificationEntity.getUserEntity().getUserId(),
+                notificationEntity.getMessage(),
                 notificationEntity.getType(),
                 notificationEntity.getChannel(),
-                notificationEntity.getMessage(),
                 notificationEntity.isRead(),
                 notificationEntity.getCreatedAt()
         );

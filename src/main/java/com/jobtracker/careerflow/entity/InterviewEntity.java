@@ -51,4 +51,9 @@ public class InterviewEntity {
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
     }
+
+    @PreUpdate
+    public void onUpdate(){
+        this.updatedAt = OffsetDateTime.now();
+    }
 }

@@ -2,6 +2,7 @@ package com.jobtracker.careerflow.controller;
 
 import com.jobtracker.careerflow.Exception_Handling.*;
 import com.jobtracker.careerflow.responseDTO.ErrorResponseDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({ApplicationAlreadyExistsException.class, ApplicationExistsForThisJobIdException.class,
-            ApplicationHasInterviewsException.class, InterviewExistsException.class, ResumeAlreadyUsedException.class})
+            ApplicationHasInterviewsException.class, InterviewExistsException.class, ResumeAlreadyUsedException.class, UserAlreadyExistsException.class})
     public ResponseEntity<ErrorResponseDTO> handleConflictExceptions(Exception ex){
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 OffsetDateTime.now(),
@@ -47,23 +48,46 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleBadRequestExceptions(MethodArgumentNotValidException  ex){
+    public ResponseEntity<ErrorResponseDTO> handleBadRequestExceptions(MethodArgumentNotValidException ex) {
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 OffsetDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getBindingResult().getFieldErrors().toString()
         );
+
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({IncorrectPasswordException.class, UserAlreadyExistsException.class})
-    public ResponseEntity<ErrorResponseDTO> handleIncorrectPassword(Exception ex){
+    @ExceptionHandler({IllegalArgumentException.class, InvalidAttributeException.class})
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(Exception ex) {
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                OffsetDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidCredentials(Exception ex){
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 OffsetDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage()
         );
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDataIntegrityViolation(DataIntegrityViolationException ex){
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                OffsetDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "User cannot be deleted because dependent data exists."
+        );
+
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.CONFLICT);
     }
 
 }

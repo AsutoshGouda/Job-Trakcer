@@ -15,5 +15,10 @@ public interface InterviewRepository extends JpaRepository<InterviewEntity, UUID
             ApplicationEntity applicationEntity,
             int roundNo
     );
+    boolean existsByApplicationEntityAndRoundNoAndInterviewIdNot(
+            ApplicationEntity applicationEntity,
+            int roundNo,
+            UUID interviewId
+    );
 
 }
