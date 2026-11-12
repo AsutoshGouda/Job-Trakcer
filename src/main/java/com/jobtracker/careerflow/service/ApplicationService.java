@@ -8,6 +8,7 @@ import com.jobtracker.careerflow.entity.UserEntity;
 import com.jobtracker.careerflow.repository.*;
 import com.jobtracker.careerflow.requestDTO.ApplicationRequestDTO;
 import com.jobtracker.careerflow.requestDTO.UpdateApplicationRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UpdateApplicationStatusDTO;
 import com.jobtracker.careerflow.responseDTO.ApplicationResponseDTO;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +103,19 @@ public class ApplicationService {
             throw new ApplicationNotFoundException("Application Not Found!");
         }
         applicationEntity.setAppliedAt(updatedAppliedAt.appliedAt());
+        applicationRepository.save(applicationEntity);
+        return mapToResponse(applicationEntity);
+    }
+
+    public ApplicationResponseDTO updateApplicationStatus(UUID id, UUID userId, UpdateApplicationStatusDTO updateApplicationStatusDTO){
+        ApplicationEntity applicationEntity = applicationRepository.findById(id).orElseThrow(()-> new ApplicationNotFoundException("Application Not Found!"));
+        if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
+            throw new ApplicationNotFoundException("Application Not Found!");
+        }
+        if (applicationEntity.getStatus().equals(updateApplicationStatusDTO.status())) {
+            return mapToResponse(applicationEntity);
+        }
+        applicationEntity.setStatus(updateApplicationStatusDTO.status());
         applicationRepository.save(applicationEntity);
         return mapToResponse(applicationEntity);
     }

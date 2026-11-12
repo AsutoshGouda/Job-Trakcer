@@ -2,6 +2,7 @@ package com.jobtracker.careerflow.controller;
 
 import com.jobtracker.careerflow.requestDTO.ApplicationRequestDTO;
 import com.jobtracker.careerflow.requestDTO.UpdateApplicationRequestDTO;
+import com.jobtracker.careerflow.requestDTO.UpdateApplicationStatusDTO;
 import com.jobtracker.careerflow.responseDTO.ApplicationResponseDTO;
 import com.jobtracker.careerflow.security.CustomerUserDetails;
 import com.jobtracker.careerflow.service.ApplicationService;
@@ -54,11 +55,20 @@ public class ApplicationController {
 
     @PatchMapping("/updateApplication/id/{id}")
     public ApplicationResponseDTO updateApplication(@PathVariable UUID id,
-                                                    @RequestBody UpdateApplicationRequestDTO date,
+                                                    @Valid @RequestBody UpdateApplicationRequestDTO date,
                                                     @AuthenticationPrincipal UserDetails userDetails){
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
         UUID userId = customerUserDetails.getUserId();
         return applicationService.updateApplied(id, userId, date);
+    }
+
+    @PatchMapping("/updateApplication/id/{id}/status")
+    public ApplicationResponseDTO updateApplicationStatus(@PathVariable UUID id,
+                                                          @Valid @RequestBody UpdateApplicationStatusDTO status,
+                                                          @AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID userId = customerUserDetails.getUserId();
+        return applicationService.updateApplicationStatus(id, userId, status);
     }
 
     @DeleteMapping("/deleteApplication/id/{id}")
