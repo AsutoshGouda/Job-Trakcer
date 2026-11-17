@@ -30,28 +30,38 @@ public class JobController {
 
         UUID loggedInUserId = customerUserDetails.getUserId();
 
-        return jobService.getJobById(id);
+        return jobService.getJobById(loggedInUserId, id);
     }
 
     @GetMapping("/company/{id}")
-    public List<JobResponseDTO> getJobsByCompanyId(@PathVariable UUID id){
-        return jobService.getJobsByCompanyId(id);
+    public List<JobResponseDTO> getJobsByCompanyId(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID loggedInUserId = customerUserDetails.getUserId();
+        return jobService.getJobsByCompanyId(loggedInUserId, id);
     }
 
     @PostMapping
-    public JobResponseDTO addJob(@Valid @RequestBody JobRequestDTO jobRequestDTO){
-        return jobService.save(jobRequestDTO);
+    public JobResponseDTO addJob(@Valid @RequestBody JobRequestDTO jobRequestDTO,
+                                 @AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID loggedInUserId = customerUserDetails.getUserId();
+        return jobService.save(loggedInUserId, jobRequestDTO);
     }
 
     @PatchMapping("/updateJob/id/{jobId}")
     public JobResponseDTO updateJob(@PathVariable UUID jobId,
-                                    @Valid @RequestBody UpdateJobRequestDTO updateJobRequestDTO){
-        return jobService.updateJob(jobId, updateJobRequestDTO);
+                                    @Valid @RequestBody UpdateJobRequestDTO updateJobRequestDTO,
+                                    @AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID loggedInUserId = customerUserDetails.getUserId();
+        return jobService.updateJob(loggedInUserId, jobId, updateJobRequestDTO);
     }
 
     @DeleteMapping("/deleteJob/id/{jobId}")
-    public void deleteJob(@PathVariable UUID jobId){
-        jobService.deleteJob(jobId);
+    public void deleteJob(@PathVariable UUID jobId, @AuthenticationPrincipal UserDetails userDetails){
+        CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
+        UUID loggedInUserId = customerUserDetails.getUserId();
+        jobService.deleteJob(loggedInUserId, jobId);
     }
 
 }

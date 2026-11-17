@@ -11,6 +11,7 @@ import com.jobtracker.careerflow.requestDTO.UpdateApplicationRequestDTO;
 import com.jobtracker.careerflow.requestDTO.UpdateApplicationStatusDTO;
 import com.jobtracker.careerflow.responseDTO.ApplicationResponseDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -24,14 +25,17 @@ public class ApplicationService {
     private final JobRepository jobRepository;
     private final ResumeRepository resumeRepository;
     private final InterviewRepository interviewRepository;
+    private final NotificationService notificationService;
 
     public ApplicationService(ApplicationRepository applicationRepository, UserRepository userRepository,
-                              JobRepository jobRepository, ResumeRepository resumeRepository, InterviewRepository interviewRepository){
+                              JobRepository jobRepository, ResumeRepository resumeRepository,
+                              InterviewRepository interviewRepository, NotificationService notificationService){
         this.applicationRepository = applicationRepository;
         this.jobRepository = jobRepository;
         this.userRepository = userRepository;
         this.resumeRepository = resumeRepository;
         this.interviewRepository = interviewRepository;
+        this.notificationService = notificationService;
     }
 
     public ApplicationResponseDTO mapToResponse(ApplicationEntity applicationEntity){
@@ -52,7 +56,7 @@ public class ApplicationService {
                         "Resume Not Found!"));
 
         JobEntity jobEntity =
-                jobRepository.findById(applicationRequestDTO.jobId()).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
+                jobRepository.findByJobIdAndUserEntity_UserId(applicationRequestDTO.jobId(), userId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
 
         UserEntity userEntity =
                 userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User " +
@@ -107,6 +111,7 @@ public class ApplicationService {
         return mapToResponse(applicationEntity);
     }
 
+    @Transactional
     public ApplicationResponseDTO updateApplicationStatus(UUID id, UUID userId, UpdateApplicationStatusDTO updateApplicationStatusDTO){
         ApplicationEntity applicationEntity = applicationRepository.findById(id).orElseThrow(()-> new ApplicationNotFoundException("Application Not Found!"));
         if(!userId.equals(applicationEntity.getUserEntity().getUserId())){
@@ -117,6 +122,12 @@ public class ApplicationService {
         }
         applicationEntity.setStatus(updateApplicationStatusDTO.status());
         applicationRepository.save(applicationEntity);
+
+        notificationService.createApplicationUpdateNotification(
+                applicationEntity.getUserEntity(),
+                updateApplicationStatusDTO.status()
+        );
+
         return mapToResponse(applicationEntity);
     }
 

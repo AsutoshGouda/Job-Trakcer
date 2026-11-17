@@ -11,6 +11,7 @@ import com.jobtracker.careerflow.requestDTO.InterviewRequestDTO;
 import com.jobtracker.careerflow.requestDTO.InterviewUpdateRequestDTO;
 import com.jobtracker.careerflow.responseDTO.InterviewResponseDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,10 +21,12 @@ public class InterviewService {
 
     private final InterviewRepository interviewRepository;
     private final ApplicationRepository applicationRepository;
+    private final NotificationService notificationService;
 
-    public InterviewService(InterviewRepository interviewRepository, ApplicationRepository applicationRepository){
+    public InterviewService(InterviewRepository interviewRepository, ApplicationRepository applicationRepository, NotificationService notificationService){
         this.interviewRepository = interviewRepository;
         this.applicationRepository = applicationRepository;
+        this.notificationService = notificationService;
     }
 
     public InterviewResponseDTO mapToResponse(InterviewEntity interviewEntity){
@@ -41,6 +44,7 @@ public class InterviewService {
         );
     }
 
+    @Transactional
     public InterviewResponseDTO save(UUID userId, InterviewRequestDTO interviewRequestDTO){
 
         ApplicationEntity applicationEntity =
@@ -63,6 +67,9 @@ public class InterviewService {
         interviewEntity.setRoundType(interviewRequestDTO.roundType());
         interviewEntity.setStatus("SCHEDULED");
         interviewRepository.save(interviewEntity);
+
+        notificationService.createInterviewNotification(applicationEntity.getUserEntity(),
+                interviewRequestDTO.scheduledAt());
         return mapToResponse(interviewEntity);
 
     }
@@ -81,9 +88,11 @@ public class InterviewService {
         return interviewRepository.findByApplicationEntity_ApplicationIdAndApplicationEntity_UserEntity_UserId(id, userId).stream().map(this::mapToResponse).toList();
     }
 
+    @Transactional
     public InterviewResponseDTO updateInterview(UUID userId, UUID id, InterviewUpdateRequestDTO interviewUpdateRequestDTO){
         InterviewEntity interviewEntity =
                 interviewRepository.findById(id).orElseThrow(()-> new InterviewNotFoundException("Interview not found"));
+        boolean rescheduled = false;
         if(!userId.equals(interviewEntity.getApplicationEntity().getUserEntity().getUserId())){
             throw new InterviewNotFoundException("Interview not found");
         }
@@ -100,10 +109,16 @@ public class InterviewService {
             }
             interviewEntity.setRoundNo(interviewUpdateRequestDTO.roundNo());
         }
-        if(interviewUpdateRequestDTO.scheduledAt() != null){
+        if(interviewUpdateRequestDTO.scheduledAt() != null && !interviewUpdateRequestDTO.scheduledAt()
+                .equals(interviewEntity.getScheduledAt())){
             interviewEntity.setScheduledAt(interviewUpdateRequestDTO.scheduledAt());
+            rescheduled = true;
         }
         interviewRepository.save(interviewEntity);
+        if(rescheduled){
+            notificationService.createInterviewRescheduledNotification(interviewEntity.getApplicationEntity().getUserEntity(),
+                    interviewEntity.getScheduledAt());
+        }
         return mapToResponse(interviewEntity);
     }
 

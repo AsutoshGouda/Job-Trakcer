@@ -10,6 +10,7 @@ import com.jobtracker.careerflow.requestDTO.NotificationRequestDTO;
 import com.jobtracker.careerflow.responseDTO.NotificationResponseDTO;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -88,6 +89,35 @@ public class NotificationService {
             throw new NotificationNotFoundException("Notification Not Found!");
         }
         notificationRepository.delete(notificationEntity);
+    }
+
+    public void createApplicationUpdateNotification(UserEntity userEntity, String status){
+        NotificationEntity notificationEntity = new NotificationEntity();
+        notificationEntity.setUserEntity(userEntity);
+        notificationEntity.setType("APPLICATION_UPDATE");
+        notificationEntity.setChannel("IN_APP");
+        notificationEntity.setMessage("Your application status has been updated to "+ status + ".");
+
+        notificationRepository.save(notificationEntity);
+    }
+
+    public void createInterviewNotification(UserEntity userEntity, OffsetDateTime dateTime){
+        NotificationEntity notificationEntity = new NotificationEntity();
+        notificationEntity.setUserEntity(userEntity);
+        notificationEntity.setType("INTERVIEW_REMINDER");
+        notificationEntity.setChannel("IN_APP");
+        notificationEntity.setMessage("Your interview has been scheduled for "+ dateTime + ".");
+
+        notificationRepository.save(notificationEntity);
+    }
+
+    public void createInterviewRescheduledNotification(UserEntity userEntity, OffsetDateTime dateTime){
+        NotificationEntity notificationEntity = new NotificationEntity();
+        notificationEntity.setUserEntity(userEntity);
+        notificationEntity.setType("INTERVIEW_REMINDER");
+        notificationEntity.setChannel("IN_APP");
+        notificationEntity.setMessage("Your interview has been scheduled for " + dateTime + ".");
+        notificationRepository.save(notificationEntity);
     }
 
 }

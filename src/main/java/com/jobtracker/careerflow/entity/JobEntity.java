@@ -25,6 +25,10 @@ public class JobEntity {
     @JoinColumn(name = "company_id")
     private CompanyEntity companyEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity userEntity;
+
     @Column(name = "company_name_other")
     private String companyNameOther;
 
@@ -37,7 +41,7 @@ public class JobEntity {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "url", nullable = false)
+    @Column(name = "url")
     private String url;
 
     @Column(name = "created_at", nullable = false)

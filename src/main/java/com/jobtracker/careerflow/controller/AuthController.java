@@ -6,6 +6,7 @@ import com.jobtracker.careerflow.responseDTO.LoginResponseDTO;
 import com.jobtracker.careerflow.responseDTO.UserResponseDTO;
 import com.jobtracker.careerflow.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDTO register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO){
         return authService.register(registerRequestDTO);
     }

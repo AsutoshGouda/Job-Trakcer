@@ -1,10 +1,10 @@
 package com.jobtracker.careerflow.controller;
 
-import com.jobtracker.careerflow.requestDTO.NotificationRequestDTO;
 import com.jobtracker.careerflow.responseDTO.NotificationResponseDTO;
 import com.jobtracker.careerflow.security.CustomerUserDetails;
 import com.jobtracker.careerflow.service.NotificationService;
-import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -37,18 +37,20 @@ public class NotificationController {
     }
 
     @GetMapping("/unread")
-    public List<NotificationResponseDTO> getUnReadNotifications(@AuthenticationPrincipal UserDetails userDetails){
+    public List<NotificationResponseDTO> getUnreadNotifications(@AuthenticationPrincipal UserDetails userDetails){
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
         UUID userId = customerUserDetails.getUserId();
         return notificationService.getUnreadNotificationsByUserId(userId);
     }
 
+    /*
     @PostMapping
     public NotificationResponseDTO addNotification(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody NotificationRequestDTO notificationRequestDTO){
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
         UUID userId = customerUserDetails.getUserId();
         return notificationService.save(userId, notificationRequestDTO);
     }
+     */
 
     @PatchMapping("/id/{id}/read")
     public NotificationResponseDTO markNotificationsAsRead(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id){
@@ -58,10 +60,12 @@ public class NotificationController {
     }
 
     @DeleteMapping("/id/{id}")
-    public void deleteNotifications(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id){
+    public ResponseEntity<Void> deleteNotifications(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id){
         CustomerUserDetails customerUserDetails = (CustomerUserDetails) userDetails;
         UUID userId = customerUserDetails.getUserId();
         notificationService.deleteNotification(userId, id);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

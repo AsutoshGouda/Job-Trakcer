@@ -4,19 +4,20 @@ import com.jobtracker.careerflow.Exception_Handling.ApplicationExistsForThisJobI
 import com.jobtracker.careerflow.Exception_Handling.CompanyNotFoundException;
 import com.jobtracker.careerflow.Exception_Handling.InvalidAttributeException;
 import com.jobtracker.careerflow.Exception_Handling.JobNotFoundException;
-import com.jobtracker.careerflow.entity.ApplicationEntity;
+import com.jobtracker.careerflow.Exception_Handling.UserNotFoundException;
 import com.jobtracker.careerflow.entity.CompanyEntity;
 import com.jobtracker.careerflow.entity.JobEntity;
+import com.jobtracker.careerflow.entity.UserEntity;
 import com.jobtracker.careerflow.repository.ApplicationRepository;
 import com.jobtracker.careerflow.repository.CompanyRepository;
 import com.jobtracker.careerflow.repository.JobRepository;
+import com.jobtracker.careerflow.repository.UserRepository;
 import com.jobtracker.careerflow.requestDTO.JobRequestDTO;
 import com.jobtracker.careerflow.requestDTO.UpdateJobRequestDTO;
 import com.jobtracker.careerflow.responseDTO.JobResponseDTO;
 import org.springframework.stereotype.Service;
 
-import javax.naming.directory.InvalidAttributesException;
-import java.time.OffsetDateTime;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -26,11 +27,13 @@ public class JobService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
 
-    public JobService(JobRepository jobRepository, CompanyRepository companyRepository, ApplicationRepository applicationRepository){
+    public JobService(JobRepository jobRepository, CompanyRepository companyRepository, ApplicationRepository applicationRepository, UserRepository userRepository){
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.applicationRepository = applicationRepository;
+        this.userRepository = userRepository;
     }
 
     public JobResponseDTO mapToResponse(JobEntity jobEntity){
@@ -53,17 +56,17 @@ public class JobService {
         return jobRepository.findAll().stream().map(this::mapToResponse).toList();
     }
 
-    public JobResponseDTO getJobById(UUID id){
-        JobEntity jobEntity = jobRepository.findById(id).orElseThrow(()->new JobNotFoundException("Job Not Found!"));
+    public JobResponseDTO getJobById(UUID userId, UUID id){
+        JobEntity jobEntity = jobRepository.findByJobIdAndUserEntity_UserId(id, userId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
         return mapToResponse(jobEntity);
     }
 
-    public List<JobResponseDTO> getJobsByCompanyId(UUID id){
-        List<JobEntity> jobEntities = jobRepository.findByCompanyEntity_CompanyId(id);
+    public List<JobResponseDTO> getJobsByCompanyId(UUID userId, UUID companyId){
+        List<JobEntity> jobEntities = jobRepository.findByCompanyEntity_CompanyIdAndUserEntity_UserId(companyId, userId);
         return jobEntities.stream().map(this::mapToResponse).toList();
     }
 
-    public JobResponseDTO save(JobRequestDTO jobRequestDTO){
+    public JobResponseDTO save(UUID userId, JobRequestDTO jobRequestDTO){
         if (jobRequestDTO.companyId() == null &&
                 (jobRequestDTO.companyNameOther() == null || jobRequestDTO.companyNameOther().isBlank())) {
 
@@ -77,6 +80,8 @@ public class JobService {
         }
 
         JobEntity jobEntity = new JobEntity();
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("User Not Found!"));
+        jobEntity.setUserEntity(userEntity);
 
         if(jobRequestDTO.companyId() != null){
             CompanyEntity companyEntity = companyRepository.findById(jobRequestDTO.companyId())
@@ -84,7 +89,7 @@ public class JobService {
 
             jobEntity.setCompanyEntity(companyEntity);
         }else{
-            jobEntity.setCompanyNameOther(jobRequestDTO.companyNameOther());
+            jobEntity.setCompanyNameOther(jobRequestDTO.companyNameOther().trim());
         }
 
         jobEntity.setTitle(jobRequestDTO.title());
@@ -96,8 +101,8 @@ public class JobService {
         return mapToResponse(jobEntity);
     }
 
-    public JobResponseDTO updateJob(UUID jobId, UpdateJobRequestDTO updateJobRequestDTO){
-        JobEntity jobEntity = jobRepository.findById(jobId)
+    public JobResponseDTO updateJob(UUID userId, UUID jobId, UpdateJobRequestDTO updateJobRequestDTO){
+        JobEntity jobEntity = jobRepository.findByJobIdAndUserEntity_UserId(jobId, userId)
                 .orElseThrow(() -> new JobNotFoundException("Job Not Found!"));
 
         if(updateJobRequestDTO.companyId() != null &&
@@ -121,7 +126,7 @@ public class JobService {
             }
 
             jobEntity.setCompanyEntity(null);
-            jobEntity.setCompanyNameOther(updateJobRequestDTO.companyNameOther());
+            jobEntity.setCompanyNameOther(updateJobRequestDTO.companyNameOther().trim());
         }
 
         if(updateJobRequestDTO.status() != null && !updateJobRequestDTO.status().isBlank()){
@@ -145,10 +150,10 @@ public class JobService {
         return mapToResponse(jobEntity);
     }
 
-    public void deleteJob(UUID jobId){
-        JobEntity jobEntity = jobRepository.findById(jobId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
+    public void deleteJob(UUID userId, UUID jobId){
+        JobEntity jobEntity = jobRepository.findByJobIdAndUserEntity_UserId(jobId, userId).orElseThrow(()-> new JobNotFoundException("Job Not Found!"));
 
-        if(applicationRepository.existsByJobEntity_JobId(jobId)){
+        if(applicationRepository.existsByUserEntity_UserIdAndJobEntity_JobId(userId, jobId)){
             throw new ApplicationExistsForThisJobIdException("For this job, applications exist!");
         }
         jobRepository.delete(jobEntity);

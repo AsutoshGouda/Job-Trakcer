@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 public record UpdateApplicationStatusDTO(
         @NotBlank(message = "Status cannot be blank")
         @Pattern(
-                regexp = "APPLIED|INTERVIEW|OFFERED|REJECTED|WITHDRAW",
+                regexp = "^(APPLIED|SCREENING|INTERVIEW|OFFER|ACCEPTED|REJECTED|WITHDRAW)$",
                 message = "Invalid application status"
         )
         String status
